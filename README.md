@@ -2,8 +2,6 @@
 A Spigot based plugin where you can control mobs.
 This plugin is developed and tested for 1.15.2. It might work for 1.14 but it's not tested. 
 
----
-
 - [Install](#install)
 - [Permissions](#permissions)
 - [Commands](#commands)
