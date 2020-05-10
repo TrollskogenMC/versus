@@ -16,9 +16,9 @@ Download [ProtocolLib](https://www.spigotmc.org/resources/protocollib.1997/) and
 - versus.remove - Acccess to the /versus remove &lt;player> command
   
 ## Commands
-`/versus add &lt;player>` Add a player to control the mobs.
-`/versus remove &ltplayer>` Remove a player from controlling mobs.
-`/versus reload` Reloads both the configuration and translations.
+* `/versus add <player>` Add a player to control the mobs.
+* `/versus remove <player>` Remove a player from controlling mobs.
+* `/versus reload` Reloads both the configuration and translations.
 
 ## Contributing
 Please feel free to open pull request and issues if you like to contribute or just have a question.
