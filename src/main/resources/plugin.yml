@@ -1,0 +1,9 @@
+main: com.github.hornta.versus.VersusPlugin
+name: versus
+version: ${project.version}
+api-version: 1.15
+depend: [LibsDisguises, ProtocolLib]
+commands:
+  versus:
+    aliases:
+      - vs

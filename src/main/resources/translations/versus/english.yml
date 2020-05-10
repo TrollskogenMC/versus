@@ -1,0 +1,62 @@
+no_permission_command: |-
+  §cYou don't have permission to execute this command.
+missing_arguments_command: |-
+  §cSome arguments for this command is missing.
+
+  Usage:
+  <usage>
+command_not_found: |-
+  §cCommand wasn't found.
+
+  Suggestions:
+  <suggestions>
+control_mobs: |-
+  §a§l<player_name> can now control mobs!
+control_instruction: |-
+  §eLeft click a mob (with nothing in your hand) to control it or use the hotbar items to enter nearby mobs.
+no_control_mobs: |-
+  §a§l<player_name> can no longer control mobs!
+reload_config_failed: |-
+  Failed to reload configuration.
+  Reason: <reason>
+reload_messages_failed: |-
+  Failed to reload messages.
+  Reason: <reason>
+reloaded: |-
+  §6§lPlugin was reloaded successfully!
+not_online: |-
+  §c<player_name> is not online!
+already_controlling: |-
+  §c<player_name> is already controlling mobs!
+not_controlling: |-
+  §c<player_name> is not controlling mobs!
+now_controlling: |-
+  §a§lYou are now controlling a <entity_type>!
+not_disguised: |-
+  §aYou are no longer disguised!
+not_find_mobs: |-
+  §cCouldn't find any mobs!
+not_find_mobs_type: |-
+  §cCouldn't find any <entity_type>!
+no_player_track: |-
+  §cNo players to track!
+track: |-
+  §a§lCompass is now pointing to <player_name>.
+cooldown: |-
+  §cYou are still on cooldown for <time_left>.
+timeunit.second: |-
+  second
+timeunit.seconds: |-
+  seconds
+timeunit.minute: |-
+  minute
+timeunit.minutes: |-
+  minutes
+timeunit.hour: |-
+  hour
+timeunit.hours: |-
+  hours
+timeunit.day: |-
+  day
+timeunit.days: |-
+  days

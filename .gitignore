@@ -1,0 +1,5 @@
+server/*
+!server/.gitkeep
+target
+.idea
+versus-*.jar
