@@ -29,12 +29,21 @@ import org.bukkit.block.data.MultipleFacing;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Ageable;
 import org.bukkit.entity.Arrow;
+import org.bukkit.entity.Blaze;
+import org.bukkit.entity.Creeper;
+import org.bukkit.entity.Dolphin;
+import org.bukkit.entity.EnderDragon;
+import org.bukkit.entity.Enderman;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.ExperienceOrb;
+import org.bukkit.entity.Ghast;
 import org.bukkit.entity.Horse;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Pillager;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Skeleton;
+import org.bukkit.entity.Stray;
 import org.bukkit.entity.WaterMob;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -105,7 +114,7 @@ public class Versus implements Listener {
                 continue;
               }
               player.getWorld().playSound(player.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 1.0f, 1.0f);
-              Location loc = player.getWorld().getHighestBlockAt(player.getLocation().clone().add((random.nextDouble() - 0.5) * 64.0, (double)(random.nextInt(64) - 32), (random.nextDouble() - 0.5) * 64.0)).getLocation();
+              Location loc = player.getWorld().getHighestBlockAt(player.getLocation().clone().add((random.nextDouble() - 0.5) * 64.0, random.nextInt(64) - 32, (random.nextDouble() - 0.5) * 64.0)).getLocation();
               PaperLib.teleportAsync(player, loc);
               player.getWorld().playSound(player.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 1.0f, 1.0f);
             } else if (disguise.getType() == DisguiseType.COD || disguise.getType() == DisguiseType.DOLPHIN || disguise.getType() == DisguiseType.PUFFERFISH || disguise.getType() == DisguiseType.SALMON || disguise.getType() == DisguiseType.SQUID || disguise.getType() == DisguiseType.TROPICAL_FISH) {
@@ -139,7 +148,7 @@ public class Versus implements Listener {
   }
 
   private void sendCooldownMessage(Player player, CooldownType type) {
-    Util.setTimeLeftPlaceholder(cooldownManager.getCooldown(player, CooldownType.HIT).getSecondsLeft());
+    Util.setTimeLeftPlaceholder(cooldownManager.getCooldown(player, type).getSecondsLeft());
     MessageManager.sendMessage(player, MessageKey.COOLDOWN);
   }
 
@@ -179,9 +188,11 @@ public class Versus implements Listener {
           Location location = entity.getLocation();
           new BukkitRunnable() {
             public void run() {
-              ExperienceOrb orb = (ExperienceOrb)location.getWorld().spawnEntity(location, EntityType.EXPERIENCE_ORB);
-              orb.setExperience(10);
-              entity.getWorld().spawnParticle(Particle.EXPLOSION_NORMAL, entity.getLocation(), 10, 0.0, 0.0, 0.0, 0.0);
+              if(location.getWorld() != null) {
+                ExperienceOrb orb = (ExperienceOrb) location.getWorld().spawnEntity(location, EntityType.EXPERIENCE_ORB);
+                orb.setExperience(10);
+                entity.getWorld().spawnParticle(Particle.EXPLOSION_NORMAL, entity.getLocation(), 10, 0.0, 0.0, 0.0, 0.0);
+              }
             }
           }.runTaskLater(VersusPlugin.getInstance(), 10L);
         }
@@ -586,6 +597,7 @@ public class Versus implements Listener {
   public void onPlayerMoveEvent(PlayerMoveEvent event) {
     Player player = event.getPlayer();
     if (
+      event.getTo() != null &&
       event.getFrom().getX() == event.getTo().getX() &&
       event.getFrom().getY() == event.getTo().getY() &&
       event.getFrom().getZ() == event.getTo().getZ()
@@ -661,7 +673,7 @@ public class Versus implements Listener {
   @SuppressWarnings("unused")
   @EventHandler
   public void onEntityTargetEvent(EntityTargetEvent event) {
-    if (event.getTarget() instanceof Player && this.isControlling((Player)event.getTarget())) {
+    if (event.getTarget() instanceof Player && isControlling((Player)event.getTarget())) {
       event.setCancelled(true);
     }
   }
@@ -753,6 +765,7 @@ public class Versus implements Listener {
     toggleInvisibility(player, true);
     Disguise disguise = DisguiseAPI.getDisguise(player);
     if (disguise != null) {
+      VersusPlugin.debug("Undisguising from %s", disguise.getDisguiseName());
       for (PotionEffect activePotionEffect : player.getActivePotionEffects()) {
         player.removePotionEffect(activePotionEffect.getType());
       }
@@ -773,6 +786,8 @@ public class Versus implements Listener {
           horse.setColor(((HorseWatcher)disguise.getWatcher()).getColor());
           horse.setStyle(((HorseWatcher)disguise.getWatcher()).getStyle());
         }
+
+        VersusPlugin.debug("Setting entity health to players health %d", player.getHealth());
         entity.setHealth(player.getHealth());
       }
       if (!toNew) {
@@ -780,12 +795,11 @@ public class Versus implements Listener {
           player.setFlying(false);
           player.setAllowFlight(false);
         }
-        player
-          .getAttribute(Attribute.GENERIC_MAX_HEALTH)
-          .setBaseValue(
-            player.getAttribute(Attribute.GENERIC_MAX_HEALTH).getDefaultValue()
-          );
-        player.setHealth(player.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue());
+        AttributeInstance maxHealthAttr = player.getAttribute(Attribute.GENERIC_MAX_HEALTH);
+        if(maxHealthAttr != null) {
+          maxHealthAttr.setBaseValue(maxHealthAttr.getDefaultValue());
+          player.setHealth(maxHealthAttr.getValue());
+        }
       }
       disguise.stopDisguise();
       player.getInventory().clear();
@@ -799,12 +813,11 @@ public class Versus implements Listener {
     undisguise(player, true, true, true);
     toggleInvisibility(player, false);
     PaperLib.teleportAsync(player, entity.getLocation());
-    player
-      .getAttribute(Attribute.GENERIC_MAX_HEALTH)
-      .setBaseValue(
-        entity.getAttribute(Attribute.GENERIC_MAX_HEALTH)
-          .getBaseValue()
-      );
+    AttributeInstance playerMaxHealthAttr = player.getAttribute(Attribute.GENERIC_MAX_HEALTH);
+    AttributeInstance entityMaxHealthAttr = entity.getAttribute(Attribute.GENERIC_MAX_HEALTH);
+    if(playerMaxHealthAttr != null && entityMaxHealthAttr != null) {
+      playerMaxHealthAttr.setBaseValue(entityMaxHealthAttr.getBaseValue());
+    }
     player.setHealth(entity.getHealth());
 
     MobDisguise disguise = new MobDisguise(DisguiseType.getType(entity), !(entity instanceof Ageable) || ((Ageable)entity).isAdult());
@@ -812,35 +825,37 @@ public class Versus implements Listener {
     disguise.setHideHeldItemFromSelf(true);
     disguise.setViewSelfDisguise(false);
     disguise.getWatcher().setCustomNameVisible(false);
-    if (entity.getType() == EntityType.SKELETON || entity.getType() == EntityType.STRAY) {
+    if (entity instanceof Skeleton || entity instanceof Stray) {
       disguise.getWatcher().setItemInMainHand(new ItemStack(Material.BOW));
       ItemStack itemStack = new ItemStack(Material.BOW);
       itemStack.addEnchantment(Enchantment.ARROW_INFINITE, 1);
       itemStack.addUnsafeEnchantment(Enchantment.DURABILITY, 10);
       player.getInventory().setItem(0, itemStack);
       player.getInventory().setItem(9, new ItemStack(Material.ARROW, 64));
-    } else if (entity.getType() == EntityType.PILLAGER) {
+    } else if (entity instanceof Pillager) {
       disguise.getWatcher().setItemInMainHand(new ItemStack(Material.CROSSBOW));
       ItemStack itemStack = new ItemStack(Material.CROSSBOW);
       itemStack.addUnsafeEnchantment(Enchantment.DURABILITY, 10);
       player.getInventory().setItem(0, itemStack);
       player.getInventory().setItem(9, new ItemStack(Material.ARROW, 64));
-    } else if (entity.getType() == EntityType.CREEPER) {
+    } else if (entity instanceof Creeper) {
       player.getInventory().setItem(0, Items.getCreeperExploder());
-    } else if (entity.getType() == EntityType.GHAST) {
+    } else if (entity instanceof Ghast) {
       player.getInventory().setItem(0, Items.getGhastItem());
-    } else if (entity.getType() == EntityType.BLAZE) {
+    } else if (entity instanceof Blaze) {
       player.getInventory().setItem(0, Items.getBlazeItem());
-    } else if (entity.getType() == EntityType.ENDER_DRAGON) {
+    } else if (entity instanceof EnderDragon) {
       player.getInventory().setItem(0, Items.getDragonItem());
-    } else if (entity.getType() == EntityType.DOLPHIN) {
+    } else if (entity instanceof Dolphin) {
       player.getInventory().setItem(0, Items.getDolphinItem());
       player.addPotionEffect(new PotionEffect(PotionEffectType.DOLPHINS_GRACE, Integer.MAX_VALUE, 0, true, false, false));
-    } else if (entity.getType() == EntityType.ENDERMAN) {
+    } else if (entity instanceof Enderman) {
       player.getInventory().setItem(0, Items.getEndermanItem());
       ((EndermanWatcher)disguise.getWatcher()).setAggressive(true);
-    } else if (entity.getType() == EntityType.HORSE) {
-      disguise.getWatcher().setArmor(entity.getEquipment().getArmorContents());
+    } else if (entity instanceof Horse) {
+      if(entity.getEquipment() != null) {
+        disguise.getWatcher().setArmor(entity.getEquipment().getArmorContents());
+      }
       ((HorseWatcher)disguise.getWatcher()).setSaddled(((Horse)entity).getInventory().getSaddle() != null);
       ((HorseWatcher)disguise.getWatcher()).setColor(((Horse)entity).getColor());
       ((HorseWatcher)disguise.getWatcher()).setStyle(((Horse)entity).getStyle());
@@ -850,7 +865,17 @@ public class Versus implements Listener {
       player.addPotionEffect(new PotionEffect(PotionEffectType.WATER_BREATHING, Integer.MAX_VALUE, 0, true, false, false));
     }
 
-    if (entity.getType() == EntityType.BAT || entity.getType() == EntityType.BLAZE || entity.getType() == EntityType.ENDER_DRAGON || entity.getType() == EntityType.GHAST || entity.getType() == EntityType.PHANTOM || entity.getType() == EntityType.VEX || entity.getType() == EntityType.WITHER || entity.getType() == EntityType.SHULKER) {
+    if (
+      entity.getType() == EntityType.BAT ||
+      entity.getType() == EntityType.BLAZE ||
+      entity.getType() == EntityType.ENDER_DRAGON ||
+      entity.getType() == EntityType.GHAST ||
+      entity.getType() == EntityType.PHANTOM ||
+      entity.getType() == EntityType.VEX ||
+      entity.getType() == EntityType.WITHER ||
+      entity.getType() == EntityType.SHULKER ||
+      entity.getType() == EntityType.BEE
+    ) {
       if (player.getGameMode() != GameMode.CREATIVE) {
         player.setAllowFlight(true);
         player.setFlying(true);

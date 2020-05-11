@@ -98,6 +98,11 @@ public class VersusPlugin extends JavaPlugin {
       patch.set(ConfigKey.LANGUAGE, "language", "english", Type.STRING);
       return patch;
     }));
+    cb.addMigration(new Migration<>(2, () -> {
+      Patch<ConfigKey> patch = new Patch<>();
+      patch.set(ConfigKey.VERBOSE, "verbose", false, Type.BOOLEAN);
+      return patch;
+    }));
     configuration = cb.create();
   }
 
@@ -235,5 +240,11 @@ public class VersusPlugin extends JavaPlugin {
 
   public static VersusPlugin getInstance() {
     return instance;
+  }
+
+  public static void debug(String message, Object... args) {
+    if(instance.configuration.get(ConfigKey.VERBOSE)) {
+      instance.getLogger().log(Level.INFO, String.format(message, args));
+    }
   }
 }
