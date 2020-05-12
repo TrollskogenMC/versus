@@ -1,6 +1,7 @@
 # versus
 A Spigot based plugin where you can control mobs.
 This plugin is developed and tested for 1.15.2. It might work for 1.14.
+This is a continuation of the SuperMobs plugin created by the youtubers [Dream](https://www.youtube.com/user/DreamTraps) and [George](https://www.youtube.com/channel/UCA2tt9GSU2sl8rAqjlLR3mQ).
 
 - [Install](#install)
 - [Permissions](#permissions)
