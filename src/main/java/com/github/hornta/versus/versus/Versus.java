@@ -270,20 +270,100 @@ public class Versus implements Listener {
             case VINDICATOR:
               event.setDamage(difficulty == Difficulty.EASY ? 7.0 : difficulty == Difficulty.NORMAL ? 12.0 : difficulty == Difficulty.HARD ? 18.0 : 7.0);
               break;
+            case BAT:
+            case BEE:
+            case CAT:
+            case COD:
+            case COW:
+            case EGG:
+            case FOX:
+            case PIG:
+            case BOAT:
+            case MULE:
+            case WOLF:
+            case ARROW:
+            case GHAST:
+            case GIANT:
+            case HORSE:
+            case LLAMA:
+            case PANDA:
+            case SHEEP:
+            case SQUID:
+            case STRAY:
+            case WITCH:
+            case DONKEY:
+            case OCELOT:
+            case PARROT:
+            case PLAYER:
+            case RABBIT:
+            case SALMON:
+            case TURTLE:
+            case WITHER:
+            case CHICKEN:
+            case CREEPER:
+            case DOLPHIN:
+            case SHULKER:
+            case SNOWMAN:
+            case TRIDENT:
+            case UNKNOWN:
+            case FIREBALL:
+            case FIREWORK:
+            case MINECART:
+            case PAINTING:
+            case SKELETON:
+            case SNOWBALL:
+            case VILLAGER:
+            case ILLUSIONER:
+            case ITEM_FRAME:
+            case LLAMA_SPIT:
+            case POLAR_BEAR:
+            case PRIMED_TNT:
+            case PUFFERFISH:
+            case SILVERFISH:
+            case ARMOR_STAND:
+            case ENDER_PEARL:
+            case LEASH_HITCH:
+            case MODDED_MISC:
+            case DROPPED_ITEM:
+            case ENDER_SIGNAL:
+            case EVOKER_FANGS:
+            case FISHING_HOOK:
+            case MINECART_TNT:
+            case MUSHROOM_COW:
+            case TIPPED_ARROW:
+            case TRADER_LLAMA:
+            case WITHER_SKULL:
+            case ZOMBIE_HORSE:
+            case ENDER_CRYSTAL:
+            case FALLING_BLOCK:
+            case MODDED_LIVING:
+            case SPLASH_POTION:
+            case TROPICAL_FISH:
+            case EXPERIENCE_ORB:
+            case MINECART_CHEST:
+            case SHULKER_BULLET:
+            case SKELETON_HORSE:
+            case SMALL_FIREBALL:
+            case SPECTRAL_ARROW:
+            case DRAGON_FIREBALL:
+            case MINECART_HOPPER:
+            case MINECART_COMMAND:
+            case MINECART_FURNACE:
+            case WANDERING_TRADER:
+            case AREA_EFFECT_CLOUD:
+            case THROWN_EXP_BOTTLE:
+            case MINECART_MOB_SPAWNER:
             default:
               event.setDamage(1.0);
               break;
           }
-        }
-        else {
+        } else {
           event.setCancelled(true);
         }
-      }
-      else {
+      } else {
         event.setCancelled(true);
       }
-    }
-    if (damager instanceof Player && isControlling((Player)damager)) {
+
       Player player = (Player)damager;
       Disguise disguise = DisguiseAPI.getDisguise(player);
       if (
@@ -315,10 +395,12 @@ public class Versus implements Listener {
       }
 
       if(cooldownManager.isOnCooldown(player, CooldownType.HIT)) {
+        VersusPlugin.debug("%s is on cooldown for type %s", player.getName(), CooldownType.HIT.name());
         sendCooldownMessage(player, CooldownType.HIT);
         event.setCancelled(true);
       } else {
         cooldownManager.addCooldown(player, 1250L, CooldownType.HIT);
+        VersusPlugin.debug("Set %s cooldown for %s", CooldownType.HIT.name(), player.getName());
       }
     }
   }

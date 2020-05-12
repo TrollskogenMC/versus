@@ -35,7 +35,7 @@ public class CooldownManager {
   }
 
   public boolean isOnCooldown(Player player, CooldownType type) {
-    Cooldown cooldown = getCooldown(player, CooldownType.CREEPER_EXPLODE);
+    Cooldown cooldown = getCooldown(player, type);
     if (cooldown == null) {
       return false;
     }

@@ -31,7 +31,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
@@ -91,6 +93,7 @@ public class VersusPlugin extends JavaPlugin {
   }
 
   private void setupConfig() throws ConfigurationException {
+    debug("Setting up config");
     File cfgFile = new File(getDataFolder(), "config.yml");
     ConfigurationBuilder<ConfigKey> cb = new ConfigurationBuilder<>(cfgFile);
     cb.addMigration(new Migration<>(1, () -> {
@@ -107,6 +110,7 @@ public class VersusPlugin extends JavaPlugin {
   }
 
   private void setupMessages() throws MessengerException {
+    debug("Setting up messages and translations");
     MessageManager messageManager = new MessagesBuilder()
       .add(MessageKey.NO_PERMISSION_COMMAND, "no_permission_command")
       .add(MessageKey.MISSING_ARGUMENTS_COMMAND, "missing_arguments_command")
@@ -142,6 +146,7 @@ public class VersusPlugin extends JavaPlugin {
   }
 
   private void setupCommands() {
+    debug("Setting up commands");
     commando = new Commando();
     commando.setNoPermissionHandler((CommandSender commandSender, CarbonCommand command) -> MessageManager.sendMessage(commandSender, MessageKey.NO_PERMISSION_COMMAND));
 
@@ -243,8 +248,24 @@ public class VersusPlugin extends JavaPlugin {
   }
 
   public static void debug(String message, Object... args) {
-    if(instance.configuration.get(ConfigKey.VERBOSE)) {
-      instance.getLogger().log(Level.INFO, String.format(message, args));
+    if(instance.configuration == null || (boolean)instance.configuration.get(ConfigKey.VERBOSE)) {
+      Optional<StackTraceElement> optStack = Arrays.stream(Thread.currentThread().getStackTrace())
+        .filter((StackTraceElement s) -> {
+          if(s == null) {
+            return false;
+          }
+          if(s.getFileName() != null && s.getFileName().equals("Thread.java")) {
+            return false;
+          }
+          return s.getFileName() == null ||
+            !s.getFileName().equals("VersusPlugin.java") ||
+            !s.getMethodName().equals("debug");
+        }).findFirst();
+      String methodName = "";
+      if(optStack.isPresent()) {
+        methodName = "\u001b[33m[" + optStack.get().getMethodName() + "] \u001b[0m";
+      }
+      instance.getLogger().log(Level.INFO, methodName + String.format(message, args));
     }
   }
 }
